@@ -33,6 +33,21 @@ func (r *Result) HasChanges() bool {
 	return len(r.Changes) > 0
 }
 
+// Summary returns a count of added, removed, and modified resources.
+func (r *Result) Summary() (added, removed, modified int) {
+	for _, c := range r.Changes {
+		switch c.ChangeType {
+		case Added:
+			added++
+		case Removed:
+			removed++
+		case Modified:
+			modified++
+		}
+	}
+	return
+}
+
 // Compare computes the diff between a base and target Terraform state.
 func Compare(base, target *state.State) (*Result, error) {
 	if base == nil {
