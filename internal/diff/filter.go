@@ -45,6 +45,12 @@ func FilterReport(r Report, opts FilterOptions) Report {
 	return filtered
 }
 
+// IsEmpty reports whether opts has no filtering criteria set, meaning every
+// resource would pass through unchanged.
+func (opts FilterOptions) IsEmpty() bool {
+	return opts.ResourceType == "" && opts.AddressPrefix == "" && !opts.OnlyDrift
+}
+
 func matchesFilter(rc ResourceChange, opts FilterOptions) bool {
 	if opts.ResourceType != "" {
 		if rc.ResourceType != opts.ResourceType {
