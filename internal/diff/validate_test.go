@@ -79,3 +79,10 @@ func TestValidateReport_ModifyNoAttrs(t *testing.T) {
 		t.Fatal("expected at least one validation message")
 	}
 }
+
+func TestValidateReport_EmptyChanges(t *testing.T) {
+	r := &Report{Changes: []ResourceChange{}}
+	if err := ValidateReport(r); err != nil {
+		t.Fatalf("expected no error for report with empty changes, got: %v", err)
+	}
+}
