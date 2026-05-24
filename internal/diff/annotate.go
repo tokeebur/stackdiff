@@ -1,5 +1,7 @@
 package diff
 
+import "strings"
+
 // Annotation holds a human-readable label and optional detail attached to a
 // resource change entry in a Report.
 type Annotation struct {
@@ -37,6 +39,7 @@ func AnnotateReport(r *Report, rules []AnnotationRule) *Report {
 // AnnotationRule describes when an annotation should be applied.
 type AnnotationRule struct {
 	// ResourceType is matched as a prefix against ResourceChange.ResourceType.
+	// Use a trailing "*" wildcard or an exact string to narrow the match.
 	ResourceType string
 	// Action restricts the rule to a specific action ("added", "removed",
 	// "modified"). An empty string matches any action.
@@ -46,8 +49,15 @@ type AnnotationRule struct {
 }
 
 func (ar AnnotationRule) matches(rc ResourceChange) bool {
-	if ar.ResourceType != "" && rc.ResourceType != ar.ResourceType {
-		return false
+	if ar.ResourceType != "" {
+		pattern := ar.ResourceType
+		if strings.HasSuffix(pattern, "*") {
+			if !strings.HasPrefix(rc.ResourceType, strings.TrimSuffix(pattern, "*")) {
+				return false
+			}
+		} else if rc.ResourceType != pattern {
+			return false
+		}
 	}
 	if ar.Action != "" && string(rc.Action) != ar.Action {
 		return false
